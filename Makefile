@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: user42 <user42@student.42.fr>              +#+  +:+       +#+         #
+#    By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/04/24 16:00:27 by rbourgea          #+#    #+#              #
-#    Updated: 2022/06/20 16:56:14 by user42           ###   ########.fr        #
+#    Updated: 2022/06/21 14:04:20 by rbourgea         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ KERNEL_OUT	=	build/rbourgea_kfs.bin
 ISO_OUT		=	build/rbourgea_kfs.iso
 
 BOOT		=	src/boot.s
-SRC			=	src/kernel.c src/libk.c src/keyboard.c src/terminal.c
+SRC		=	src/kernel.c src/libk.c src/keyboard.c src/terminal.c
 LINKER		=	src/linker.ld
 
 FLAGS		=	-fno-builtin -fno-builtin -fno-builtin -nostdlib -nodefaultlibs
@@ -79,6 +79,16 @@ iso: build
 run-iso: iso
 	@qemu-system-i386 -cdrom ${ISO_OUT}
 	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
+
+docker-run:
+	-docker stop rbourgea-kfs
+	-docker rm rbourgea-kfs
+	docker build --platform linux/amd64 -t rbourgea-kfs .
+	docker run -d --name rbourgea-kfs --rm -i -t rbourgea-kfs
+	docker cp src/. rbourgea-kfs:/kfs
+	docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
+	docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c terminal.c
+	docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin boot.o kernel.o libk.o keyboard.o terminal.o
 
 clean:
 	@rm -rf $(KERNEL_OUT) $(ISO_OUT) *.o
