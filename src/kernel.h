@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/21 14:03:43 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/21 14:43:54 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
 
 # define KEYBOARD_DATA_PORT 0x60
 # define KEYBOARD_STATUS_PORT 0x64
+
+# pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 
 /* ************************************************************************** */
 /* Structs                                                                    */
@@ -80,23 +82,23 @@ enum vga_color {
 /* Globals                                                                    */
 /* ************************************************************************** */
 
-struct IDT_entry IDT[IDT_SIZE]; // This is our entire IDT. Room for 256 interrupts
+extern struct IDT_entry IDT[IDT_SIZE]; // This is our entire IDT. Room for 256 interrupts
 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
+extern const size_t	VGA_WIDTH;
+extern const size_t	VGA_HEIGHT;
  
-size_t		tty_row;
-size_t		tty_column;
-uint8_t		tty_color;
-uint16_t	*terminal_buffer;
+extern size_t		tty_row;
+extern size_t		tty_column;
+extern uint8_t		tty_color;
+extern uint16_t*	terminal_buffer;
 
-char*		prompt_buffer;
-int			tty_nb;
-int			tty_pos;
-int			tty_prompt_pos;
-char		ttys[10][256][256];
-size_t		ttys_row[10];
-size_t		ttys_column[10];
+extern char*		prompt_buffer;
+extern int		tty_nb;
+extern int		tty_pos;
+extern int		tty_prompt_pos;
+extern char		ttys[10][256][256];
+extern size_t		ttys_row[10];
+extern size_t		ttys_column[10];
 
 /* ************************************************************************** */
 /* boots.s functions                                                          */

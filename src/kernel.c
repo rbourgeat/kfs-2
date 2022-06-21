@@ -6,12 +6,33 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/16 16:29:20 by rbourgea          #+#    #+#             */
-/*   Updated: 2022/06/21 14:03:49 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/21 14:37:18 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
 
+/* ************************************************************************** */
+/* Globals                                                                    */
+/* ************************************************************************** */
+
+struct IDT_entry IDT[IDT_SIZE]; // This is our entire IDT. Room for 256 interrupts
+
+const size_t	VGA_WIDTH = 80;
+const size_t	VGA_HEIGHT = 25;
+ 
+size_t		tty_row;
+size_t		tty_column;
+uint8_t		tty_color;
+uint16_t*	terminal_buffer;
+
+char*		prompt_buffer;
+int		tty_nb;
+int		tty_pos;
+int		tty_prompt_pos;
+char		ttys[10][256][256];
+size_t		ttys_row[10];
+size_t		ttys_column[10];
 
 void set_cursor_position(uint16_t position)
 {

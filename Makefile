@@ -6,7 +6,7 @@
 #    By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/04/24 16:00:27 by rbourgea          #+#    #+#              #
-#    Updated: 2022/06/21 14:04:20 by rbourgea         ###   ########.fr        #
+#    Updated: 2022/06/21 14:46:53 by rbourgea         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -81,14 +81,20 @@ run-iso: iso
 	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
 
 docker-run:
-	-docker stop rbourgea-kfs
-	-docker rm rbourgea-kfs
-	docker build --platform linux/amd64 -t rbourgea-kfs .
-	docker run -d --name rbourgea-kfs --rm -i -t rbourgea-kfs
-	docker cp src/. rbourgea-kfs:/kfs
-	docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
-	docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c terminal.c
-	docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin boot.o kernel.o libk.o keyboard.o terminal.o
+	clear
+	@echo "\n$(BOLD)$(CYAN)[✓] STARTING DOCKER COMPILATION MODE$(RESET)"
+	@-docker stop rbourgea-kfs
+	@-docker rm rbourgea-kfs
+	@docker build --platform linux/amd64 -t rbourgea-kfs .
+	@docker run -d --name rbourgea-kfs --rm -i -t rbourgea-kfs
+	@docker cp src/. rbourgea-kfs:/kfs
+	@docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
+	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c terminal.c
+	@docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin boot.o kernel.o libk.o keyboard.o terminal.o
+	@-rm boot/rbourgea_kfs.bin
+	@docker cp rbourgea-kfs:/kfs/rbourgea_kfs.bin boot/rbourgea_kfs.bin
+	@qemu-system-i386 -kernel boot/rbourgea_kfs.bin -monitor stdio
+	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
 
 clean:
 	@rm -rf $(KERNEL_OUT) $(ISO_OUT) *.o
