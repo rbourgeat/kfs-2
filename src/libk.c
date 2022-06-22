@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libk.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:58:54 by user42            #+#    #+#             */
-/*   Updated: 2022/06/20 16:48:39 by user42           ###   ########.fr       */
+/*   Updated: 2022/06/22 17:42:15 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,4 +140,130 @@ char	*kstrjoin(char const *s1, char const *s2)
 		tab[size_s1 + count] = s2[count];
 	tab[size_s1 + count] = '\0';
 	return (tab);
+}
+
+void	printk(char *str, ...)
+{
+	int		*nb_args;
+	char	*args;
+	int		i;
+	char	tmp_addr[9];
+	uint8_t	zero_padding;
+
+	nb_args = (int *)(&str);
+	args = (char *)(*nb_args++);
+	i = 0;
+	while (args[i]) {
+		zero_padding = 0;
+		if (args[i] == '%') {
+			i++;
+			if (args[i] == '0') {
+				i++;
+				zero_padding = args[i] - '0';
+				i++;
+			}
+			if (args[i] == 'c')
+				kputchar(*nb_args++);
+			else if (args[i] == 's')
+				kputstr(*((char **)nb_args++));
+			else if (args[i] == 'x') {
+				kmemset(tmp_addr, 0, sizeof(tmp_addr));
+				hex_to_str(*nb_args++, tmp_addr, sizeof(tmp_addr));
+				kputstr(tmp_addr);
+			}
+			else if (args[i] == 'p') {
+				kmemset(tmp_addr, 0, sizeof(tmp_addr));
+				hex_to_str(*nb_args++, tmp_addr, sizeof(tmp_addr));
+				kputstr("0x");
+				kputstr(tmp_addr);
+			}
+			else if (args[i] == 'd') {
+				if (zero_padding > 0) {
+					while (zero_padding - kintlen(*nb_args)) {
+						kputchar('0');
+						zero_padding--;
+					}
+				}
+				kputnbr(*nb_args++);
+			}
+			else {
+				kputchar('%');
+				kputchar(args[i]);
+			}
+		}
+		else
+			kputchar(args[i]);
+		i++;
+	}
+}
+
+void	khexdump(uint32_t addr, int limit)
+{
+	char *c = (char *)addr;
+	char str_addr[9];
+	int i;
+	uint32_t previous;
+
+	if (limit <= 0)
+		return;
+	for (i = 0; i < limit; i++)
+	{
+		if ((i % 16) == 0) // 16 = size line
+		{
+			if (i != 0)
+			{
+				previous = addr - 16;
+				while (previous < addr)
+				{
+					if (*(char *)previous <= 32)
+					{
+						kcolor(VGA_COLOR_RED);
+						printk("%c", '.');
+					}
+					else
+					{
+						kcolor(VGA_COLOR_GREEN);
+						printk("%c", *(char *)previous);
+					}
+					previous++;
+				}
+				printk("\n");
+			}
+			if ((uint32_t)0x00000800 == addr)
+				kcolor(VGA_COLOR_CYAN);
+			else
+				kcolor(VGA_COLOR_LIGHT_BLUE);
+			printk("%p: ", addr);
+		}
+		hex_to_str((uint32_t)c[i], str_addr, 3);
+		if ((uint32_t)c[i] == 0) // == 00
+			kcolor(VGA_COLOR_RED);
+		else
+			kcolor(VGA_COLOR_GREEN);
+		printk("%s ", str_addr);
+		kcolor(VGA_COLOR_WHITE);
+		addr++;
+	}
+	for (i = 0; i < ((limit % 16) * 3); i++) // last line
+		printk(" ");
+	if ((limit % 16) == 0)
+		previous = addr - 16;
+	else
+		previous = addr - (limit % 16);
+	while (previous < addr)
+	{
+		if (*(char *)previous <= 32)
+		{
+			kcolor(VGA_COLOR_RED);
+			printk("%c", '.');
+		}
+		else
+		{
+			kcolor(VGA_COLOR_GREEN);
+			printk("%c", *(char *)previous);
+		}
+		previous++;
+	}
+	printk("\n");
+	kcolor(VGA_COLOR_WHITE);
 }

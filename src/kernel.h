@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/22 15:23:44 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/22 17:43:33 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,27 +116,32 @@ extern void enable_interrupts();
 /* ************************************************************************** */
 
 // libk.c
-void	kputstr(const char* data);
 void    kputnbr(int n);
-void	kitoa(int n, char *str);
-int		kintlen(int n);
-void*   kmemset(void *b, int c, unsigned int len);
+int	kintlen(int n);
 void	kputchar(char c);
+void	kitoa(int n, char *str);
+void	kputstr(const char* data);
+void	khexdump(uint32_t addr, int limit);
+void*	kmemset(void *b, int c, unsigned int len);
 void	hex_to_str(unsigned int addr, char *result, int size);
+char*	kstrjoin(char const *s1, char const *s2);
 size_t	kstrlen(const char* str);
-char*   kstrjoin(char const *s1, char const *s2);
+void	printk(char *str, ...);
 
 // keyboard.c
-void	init_idt();
 void	kb_init();
+void	init_idt();
 void	handle_keyboard_interrupt();
+
+// terminal.c
+void	kprompt(char c);
+void	switch_screen(int nb);
+void	terminal_initialize(int init);
+void	set_cursor_position(uint16_t position);
 
 // kernel.c
 void	kcolor(uint8_t color);
-void	kprompt(char c);
-void	terminal_initialize(int init);
 void	khello(void);
-void	printk(char *str, ...);
 void    terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
 void	khexdump(uint32_t addr, int limit);
 

@@ -6,7 +6,7 @@
 #    By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/04/24 16:00:27 by rbourgea          #+#    #+#              #
-#    Updated: 2022/06/22 17:06:39 by rbourgea         ###   ########.fr        #
+#    Updated: 2022/06/22 17:41:13 by rbourgea         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,8 +32,8 @@ KERNEL_OUT	=	build/rbourgea_kfs.bin
 ISO_OUT		=	build/rbourgea_kfs.iso
 
 BOOT		=	src/boot.s
-SRC		=	src/kernel.c src/libk.c src/keyboard.c src/terminal.c
-OBJ		=	boot.o kernel.o libk.o keyboard.o terminal.o
+SRC		=	src/kernel.c src/libk.c src/keyboard.c src/prompt.c
+OBJ		=	boot.o kernel.o libk.o keyboard.o prompt.o
 LINKER		=	src/linker.ld
 
 FLAGS		=	-fno-builtin -fno-builtin -fno-builtin -nostdlib -nodefaultlibs
@@ -90,7 +90,7 @@ docker-run:
 	@docker run -d --name rbourgea-kfs --rm -i -t rbourgea-kfs
 	@docker cp src/. rbourgea-kfs:/kfs
 	@docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
-	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c terminal.c
+	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c prompt.c
 	@docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin ${OBJ}
 	@-rm boot/rbourgea_kfs.bin
 	@docker cp rbourgea-kfs:/kfs/rbourgea_kfs.bin boot/rbourgea_kfs.bin
