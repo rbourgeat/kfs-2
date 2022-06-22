@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/21 14:43:54 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/22 15:23:44 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,5 +138,6 @@ void	terminal_initialize(int init);
 void	khello(void);
 void	printk(char *str, ...);
 void    terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
+void	khexdump(uint32_t addr, int limit);
 
 #endif

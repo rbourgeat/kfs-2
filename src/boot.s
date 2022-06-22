@@ -4,9 +4,14 @@ section .multiboot
 	dd 0x0			; Flags
 	dd - (0x1BADB002 + 0x0)	; Checksum
 
+global stack_bottom
+global stack_top
+
+extern gdt_desc
+
 section .text
 
-; Make global anything that is used in main.c
+; .s functions
 global start
 global print_char_with_asm
 global load_idt
@@ -14,10 +19,31 @@ global keyboard_handler
 global ioport_in
 global ioport_out
 global enable_interrupts
+global load_gdt
 
-extern kmain			; Defined in kernel.c
+; .c functions
+extern kmain
 extern handle_keyboard_interrupt
 
+; Global Descriptor Table
+load_gdt:
+	mov eax, [esp + 4]
+	lgdt [eax]
+
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov ss, ax
+  
+	mov ax, 0x18
+	mov gs, ax
+
+	jmp 0x08:.flush
+.flush:
+	ret
+
+; Interrupt Descriptor Table
 load_idt:
 	mov edx, [esp + 4]
 	lidt [edx]

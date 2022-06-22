@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/16 16:29:20 by rbourgea          #+#    #+#             */
-/*   Updated: 2022/06/21 14:37:18 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/22 17:03:00 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,16 +266,194 @@ void colrow_init(void)
 	}
 }
 
-void kmain()
+#define SEG_DESCTYPE(x)  ((x) << 0x04) // Descriptor type (0 for system, 1 for code/data)
+#define SEG_PRES(x)      ((x) << 0x07) // Present
+#define SEG_SAVL(x)      ((x) << 0x0C) // Available for system use
+#define SEG_LONG(x)      ((x) << 0x0D) // Long mode
+#define SEG_SIZE(x)      ((x) << 0x0E) // Size (0 for 16-bit, 1 for 32)
+#define SEG_GRAN(x)      ((x) << 0x0F) // Granularity (0 for 1B - 1MB, 1 for 4KB - 4GB)
+#define SEG_PRIV(x)     (((x) &  0x03) << 0x05)   // Set privilege level (0 - 3)
+ 
+#define SEG_DATA_RD        0x00 // Read-Only
+#define SEG_DATA_RDA       0x01 // Read-Only, accessed
+#define SEG_DATA_RDWR      0x02 // Read/Write
+#define SEG_DATA_RDWRA     0x03 // Read/Write, accessed
+#define SEG_DATA_RDEXPD    0x04 // Read-Only, expand-down
+#define SEG_DATA_RDEXPDA   0x05 // Read-Only, expand-down, accessed
+#define SEG_DATA_RDWREXPD  0x06 // Read/Write, expand-down
+#define SEG_DATA_RDWREXPDA 0x07 // Read/Write, expand-down, accessed
+#define SEG_CODE_EX        0x08 // Execute-Only
+#define SEG_CODE_EXA       0x09 // Execute-Only, accessed
+#define SEG_CODE_EXRD      0x0A // Execute/Read
+#define SEG_CODE_EXRDA     0x0B // Execute/Read, accessed
+#define SEG_CODE_EXC       0x0C // Execute-Only, conforming
+#define SEG_CODE_EXCA      0x0D // Execute-Only, conforming, accessed
+#define SEG_CODE_EXRDC     0x0E // Execute/Read, conforming
+#define SEG_CODE_EXRDCA    0x0F // Execute/Read, conforming, accessed
+ 
+#define GDT_CODE_PL0	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(0)     | SEG_CODE_EXRD
+ 
+#define GDT_DATA_PL0	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(0)     | SEG_DATA_RDWR
+
+#define GDT_STACK_PL0	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(0)     | SEG_DATA_RDWREXPD
+ 
+#define GDT_CODE_PL3	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(3)     | SEG_CODE_EXRD
+ 
+#define GDT_DATA_PL3	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(3)     | SEG_DATA_RDWR
+
+#define GDT_STACK_PL3	SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+			SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
+			SEG_PRIV(3)     | SEG_DATA_RDWREXPD
+
+#define GDT_ADDRESS	0x00000800
+#define GDT_ENTRIES	7
+#define FLAG_D_32	0xCF
+
+typedef struct  __attribute__((packed)) gdt_entry
+{
+   uint16_t limit_low;           // The lower 16 bits of the limit.
+   uint16_t base_low;            // The lower 16 bits of the base.
+   uint8_t  base_middle;         // The next 8 bits of the base.
+   uint8_t  access;              // Access flags, determine what ring this segment can be used in.
+   uint8_t  attributes;
+   uint8_t  base_high;           // The last 8 bits of the base.
+}  t_gdt_entry;
+
+typedef struct  __attribute__((packed)) gdt_ptr
+{
+   uint16_t limit;               // The upper 16 bits of all selector limits.
+   uint32_t base;                // The address of the first gdt_entry_t struct.
+} t_gdt_ptr;
+
+extern void load_gdt(uint32_t gdt_ptr);
+
+void init_gdt();
+
+t_gdt_entry     gdt_entries[GDT_ENTRIES];
+t_gdt_ptr       *gdt_ptr = (t_gdt_ptr *)GDT_ADDRESS;
+
+static void create_descriptor(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)
+{
+	gdt_entries[num].limit_low = (limit & 0xFFFF);
+	gdt_entries[num].base_low = (base & 0xFFFF);
+	gdt_entries[num].base_middle = (base >> 16) & 0xFF;
+	gdt_entries[num].access = access;
+	gdt_entries[num].attributes = (limit >> 16) & 0x0F;
+	gdt_entries[num].attributes |= ((flags << 4) & 0xF0);
+	gdt_entries[num].base_high = (base >> 24) & 0xFF;
+}
+
+void	init_gdt()
+{
+	gdt_ptr->limit = (sizeof(t_gdt_entry) * GDT_ENTRIES) - 1;
+	gdt_ptr->base = ((uint32_t)(&gdt_entries));
+
+	create_descriptor(0, 0, 0, 0, FLAG_D_32);			// null
+	create_descriptor(1, 0, 0xFFFFF, (uint8_t)(GDT_CODE_PL0),  FLAG_D_32);	// kernel code
+	create_descriptor(2, 0, 0xFFFFF, (uint8_t)(GDT_DATA_PL0),  FLAG_D_32);	// kernel data
+	create_descriptor(3, 0, 0xFFFFF, (uint8_t)(GDT_STACK_PL0), FLAG_D_32);	// kernel stack
+	create_descriptor(4, 0, 0xBFFFF, (uint8_t)(GDT_CODE_PL3),  FLAG_D_32);	// user code
+	create_descriptor(5, 0, 0xBFFFF, (uint8_t)(GDT_DATA_PL3),  FLAG_D_32);	// user data
+	create_descriptor(6, 0, 0xBFFFF, (uint8_t)(GDT_STACK_PL3), FLAG_D_32);	// user stack
+
+	load_gdt(((uint32_t)gdt_ptr));
+}
+
+void	khexdump(uint32_t addr, int limit)
+{
+	char *c = (char *)addr;
+	char str_addr[9];
+	int i;
+	uint32_t previous;
+
+	if (limit <= 0)
+		return;
+	for (i = 0; i < limit; i++)
+	{
+		if ((i % 16) == 0) // 16 = size line
+		{
+			if (i != 0)
+			{
+				previous = addr - 16;
+				while (previous < addr)
+				{
+					if (*(char *)previous <= 32)
+					{
+						kcolor(VGA_COLOR_RED);
+						printk("%c", '.');
+					}
+					else
+					{
+						kcolor(VGA_COLOR_GREEN);
+						printk("%c", *(char *)previous);
+					}
+					previous++;
+				}
+				printk("\n");
+			}
+			if ((uint32_t)0x00000800 == addr)
+				kcolor(VGA_COLOR_CYAN);
+			else
+				kcolor(VGA_COLOR_LIGHT_BLUE);
+			printk("%p: ", addr);
+		}
+		hex_to_str((uint32_t)c[i], str_addr, 3);
+		if ((uint32_t)c[i] == 0) // == 00
+			kcolor(VGA_COLOR_RED);
+		else
+			kcolor(VGA_COLOR_GREEN);
+		printk("%s ", str_addr);
+		kcolor(VGA_COLOR_WHITE);
+		addr++;
+	}
+	for (i = 0; i < ((limit % 16) * 3); i++) // last line
+		printk(" ");
+	if ((limit % 16) == 0)
+		previous = addr - 16;
+	else
+		previous = addr - (limit % 16);
+	while (previous < addr)
+	{
+		if (*(char *)previous <= 32)
+		{
+			kcolor(VGA_COLOR_RED);
+			printk("%c", '.');
+		}
+		else
+		{
+			kcolor(VGA_COLOR_GREEN);
+			printk("%c", *(char *)previous);
+		}
+		previous++;
+	}
+	printk("\n");
+	kcolor(VGA_COLOR_WHITE);
+}
+
+void	kmain()
 {
 	colrow_init();
 	terminal_initialize(-1);
+	// khexdump(0x00000800, 10);
+	init_gdt();
 	khello();
 	// printk(" \11 %s, %d%c\n\n", "Hello", 42, '!');
 
 	init_idt();
 	kb_init();
 	enable_interrupts();
+
+	khexdump(0x000007c0, 100);
 
 	kprompt(0);
 	while(42);
