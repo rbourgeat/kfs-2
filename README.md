@@ -1,7 +1,16 @@
 ![kfs-2](/images/screen-1.png)
 
-# kfs-2
+# [kfs-1](https://github.com/rbourgeat/kfs-1) 👈🏻 ✅ kfs-2
 Discover the world of "Kernel Programming" and learn how to create your very own Kernel from scratch.
+
+🎁 **Bonus:**
+- [ ] Print-kernel-stack-thing in this shell.
+- [ ] Reboot command.
+- [ ] Halt command.
+- [ ] ???
+- [ ] ???
+
+🐧 Linux and 🍏 Mac
 
 ## 📖 Kernel Bible
 https://wiki.osdev.org/Main_Page

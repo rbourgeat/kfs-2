@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 17:34:00 by rbourgea          #+#    #+#             */
-/*   Updated: 2022/06/22 17:37:50 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/22 22:49:43 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,5 +91,8 @@ typedef struct  __attribute__((packed)) gdt_ptr
 }	t_gdt_ptr;
 
 extern void load_gdt(uint32_t gdt_ptr);
+
+extern t_gdt_entry	gdt_entries[GDT_ENTRIES];
+extern t_gdt_ptr	*gdt_ptr;
 
 #endif

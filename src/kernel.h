@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/22 17:43:33 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/24 13:43:07 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,9 +104,9 @@ extern size_t		ttys_column[10];
 /* boots.s functions                                                          */
 /* ************************************************************************** */
 
-extern void print_char_with_asm(char c, int row, int col);
 extern void keyboard_handler();
 extern char ioport_in(unsigned short port);
+extern void print_char_with_asm(char c, int row, int col); // useless
 extern void ioport_out(unsigned short port, unsigned char data);
 extern void load_idt(unsigned int* idt_address);
 extern void enable_interrupts();
@@ -140,9 +140,12 @@ void	terminal_initialize(int init);
 void	set_cursor_position(uint16_t position);
 
 // kernel.c
-void	kcolor(uint8_t color);
 void	khello(void);
+void	kcolor(uint8_t color);
 void    terminal_putentryat(char c, uint8_t color, size_t x, size_t y);
 void	khexdump(uint32_t addr, int limit);
+
+// gdt.c
+void	init_gdt();
 
 #endif
