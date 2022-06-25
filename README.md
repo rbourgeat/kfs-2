@@ -4,10 +4,10 @@
 Discover the world of "Kernel Programming" and learn how to create your very own Kernel from scratch.
 
 🎁 **Bonus:**
-- [ ] Print-kernel-stack-thing in this shell.
+- [x] Print-kernel-stack-thing in this shell.
 - [ ] Reboot command.
 - [ ] Halt command.
-- [ ] ???
+- [ ] Clear command.
 - [ ] ???
 
 🐧 Linux and 🍏 Mac

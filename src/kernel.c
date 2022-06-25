@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/16 16:29:20 by rbourgea          #+#    #+#             */
-/*   Updated: 2022/06/24 13:42:11 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/24 14:50:29 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ size_t		tty_column;
 uint8_t		tty_color;
 uint16_t*	terminal_buffer;
 
-char*		prompt_buffer;
+char		prompt_buffer[1024];
+int		prompt_buffer_i;
 int		tty_nb;
 int		tty_pos;
 int		tty_prompt_pos;

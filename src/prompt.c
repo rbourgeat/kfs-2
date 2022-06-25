@@ -6,11 +6,51 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 16:53:34 by user42            #+#    #+#             */
-/*   Updated: 2022/06/22 22:45:24 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/25 13:11:41 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
+
+#define GET_STACK_POINTER(x)	asm volatile("mov %%esp, %0" : "=r"(x) ::)
+#define GET_STACK_FRAME(x)	asm volatile("mov %%ebp, %0" : "=r"(x) ::)
+
+void	kexec()
+{
+	int	sp;
+	int	sf;
+
+	prompt_buffer[prompt_buffer_i] = 0;
+	if (kstrcmp(prompt_buffer, "hello") == 0)
+		printk("Hello, %d!", 42);
+	else if (kstrcmp(prompt_buffer, "stack") == 0)
+	{
+		GET_STACK_POINTER(sp);
+		GET_STACK_FRAME(sf);
+		khexdump(sp, sf - sp + 1);
+	}
+	else if (kstrcmp(prompt_buffer, "clear") == 0)
+		printk("\n\n\n\n\n\n\n\n\n\n");
+	else if (kstrcmp(prompt_buffer, "push42") == 0)
+	{
+		// asm volatile("push 42 \n\t"
+		// 		"pop eax");
+	}
+	else {
+		kcolor(VGA_COLOR_RED);
+		printk("Command not found: %s", prompt_buffer);
+		kcolor(VGA_COLOR_LIGHT_GREY);
+	}
+	kputchar('\n');
+
+	// for (int i = 0; i < prompt_buffer_i; i++)
+	// 	prompt_buffer[i] = 0;
+	kmemset(prompt_buffer, 0, 1024);
+	prompt_buffer_i = 0;
+
+	tty_pos = tty_column + tty_row * VGA_WIDTH;
+	set_cursor_position((uint16_t)(tty_pos));
+}
 
 void	kprompt(char c)
 {
@@ -21,6 +61,8 @@ void	kprompt(char c)
 		kputchar('\n');
 	else if (c == '\b')		// Delete
 	{
+		if (tty_pos <= tty_prompt_pos)
+			return;
 		if (tty_column == 0)
 			return;
 		tty_column--;
@@ -28,6 +70,9 @@ void	kprompt(char c)
 		tty_column--;
 		tty_pos = tty_column + tty_row * VGA_WIDTH;
 		set_cursor_position((uint16_t)(tty_pos));
+		
+		prompt_buffer[prompt_buffer_i] = 0;
+		prompt_buffer_i--;
 		return;
 	}
 	else if (c == -11)		// left Ctrl
@@ -42,8 +87,8 @@ void	kprompt(char c)
 	}
 	else if (c == -13)		// left arrow
 	{
-		// if (tty_prompt_pos <= tty_pos)
-		// 	return;
+		if (tty_pos <= tty_prompt_pos)
+			return;
 		tty_column--;
 		tty_pos = tty_column + tty_row * VGA_WIDTH;
 		set_cursor_position((uint16_t)(tty_pos));
@@ -51,6 +96,8 @@ void	kprompt(char c)
 	}
 	else if (c == -14)		// right arrow
 	{
+		if (tty_pos > tty_prompt_pos + prompt_buffer_i - 1)
+			return;
 		tty_column++;
 		tty_pos = tty_column + tty_row * VGA_WIDTH;
 		set_cursor_position((uint16_t)(tty_pos));
@@ -65,13 +112,19 @@ void	kprompt(char c)
 	{
 		if (c == 0)
 			kputchar('\n');
+		else
+			kexec();
 		kcolor(VGA_COLOR_RED);
 		kputstr("[@rbourgea] \7 ");
-		tty_prompt_pos = tty_pos;
 		kcolor(VGA_COLOR_LIGHT_GREY);
+		tty_prompt_pos = tty_column + tty_row * VGA_WIDTH;
 	}
-	if (c != '\n')
+	if (c != '\n' && c != 0)
+	{
 		kputchar((const char)c);
+		prompt_buffer[prompt_buffer_i] = c;
+		prompt_buffer_i++;
+	}
 	tty_pos = tty_column + tty_row * VGA_WIDTH;
 	set_cursor_position((uint16_t)(tty_pos));
 }

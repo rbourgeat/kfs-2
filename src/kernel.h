@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/24 13:43:07 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/24 14:52:39 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,8 @@ extern size_t		tty_column;
 extern uint8_t		tty_color;
 extern uint16_t*	terminal_buffer;
 
-extern char*		prompt_buffer;
+extern char		prompt_buffer[1024];
+extern int		prompt_buffer_i;
 extern int		tty_nb;
 extern int		tty_pos;
 extern int		tty_prompt_pos;
@@ -125,6 +126,7 @@ void	khexdump(uint32_t addr, int limit);
 void*	kmemset(void *b, int c, unsigned int len);
 void	hex_to_str(unsigned int addr, char *result, int size);
 char*	kstrjoin(char const *s1, char const *s2);
+int	kstrcmp(const char *s1, const char *s2);
 size_t	kstrlen(const char* str);
 void	printk(char *str, ...);
 

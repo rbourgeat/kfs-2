@@ -6,7 +6,7 @@
 #    By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/04/24 16:00:27 by rbourgea          #+#    #+#              #
-#    Updated: 2022/06/24 13:43:56 by rbourgea         ###   ########.fr        #
+#    Updated: 2022/06/24 13:51:35 by rbourgea         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,9 @@ KERNEL_OUT	=	build/rbourgea_kfs.bin
 ISO_OUT		=	build/rbourgea_kfs.iso
 
 BOOT		=	src/boot.s
-SRC		=	src/kernel.c src/libk.c src/keyboard.c src/prompt.c src/gdt.c
+SRC_PATH	=	src/
+SRC_NAME	=	kernel.c libk.c keyboard.c prompt.c gdt.c
+SRC		=	$(addprefix $(SRC_PATH), $(SRC_NAME))
 OBJ		=	boot.o kernel.o libk.o keyboard.o prompt.o gdt.o
 LINKER		=	src/linker.ld
 
@@ -94,7 +96,7 @@ docker-run:
 	@docker cp src/. rbourgea-kfs:/kfs
 	@docker cp grub.cfg rbourgea-kfs:/kfs
 	@docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
-	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c kernel.c libk.c keyboard.c prompt.c gdt.c
+	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c ${SRC_NAME}
 	@docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin ${OBJ}
 	@-rm boot/rbourgea_kfs.bin
 #	grub-mkrescue -o rbourgea_kfs.iso .
