@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 16:53:34 by user42            #+#    #+#             */
-/*   Updated: 2022/06/26 17:13:23 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/26 18:02:26 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,18 @@
 
 int keycodemode = 0;
 
+void	outw(size_t port, unsigned short int word)
+{
+	// __asm__ == asm lol
+	__asm__ volatile ("outw %0, %w1;" :: "a" (word), "Nd" (port));
+}
+
 void	shutdown()
 {
 	// for qemu only
-	// asm volatile ("outw %1, %0" : : "dN" (0x604), "a" (0x2000));
+	outw(0x604, 0x2000);
 	// for virtualbox only
-	// asm volatile ("outw %1, %0" : : "dN" (0x4004), "a" (0x3400));
+	// outw(0x4004, 0x3400);
 }
 
 void	halt()
@@ -74,8 +80,13 @@ void	kexec()
 	}
 	else if (kstrcmp(prompt_buffer, "keycode") == 0)
 	{
+		terminal_initialize(-1);
 		printk("Keycode mode activate !");
 		keycodemode = 1;
+	}
+	else if (kstrcmp(prompt_buffer, "clear") == 0)
+	{
+		terminal_initialize(-1);
 	}
 	else {
 		kcolor(VGA_COLOR_RED);

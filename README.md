@@ -8,7 +8,7 @@ Discover the world of "Kernel Programming" and learn how to create your very own
 - [x] Reboot command.
 - [x] Halt command.
 - [x] Keycode mode command.
-- [ ] ???
+- [x] Shutdown command.
 
 🐧 Linux and 🍏 Mac
 
