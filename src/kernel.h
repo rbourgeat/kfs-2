@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:59:25 by user42            #+#    #+#             */
-/*   Updated: 2022/06/24 14:52:39 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/26 17:12:32 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ extern int		tty_prompt_pos;
 extern char		ttys[10][256][256];
 extern size_t		ttys_row[10];
 extern size_t		ttys_column[10];
+
+extern int		keycodemode;
 
 /* ************************************************************************** */
 /* boots.s functions                                                          */

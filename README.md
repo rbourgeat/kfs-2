@@ -7,7 +7,7 @@ Discover the world of "Kernel Programming" and learn how to create your very own
 - [x] Print-kernel-stack-thing in this shell.
 - [x] Reboot command.
 - [x] Halt command.
-- [ ] Clear command.
+- [x] Keycode mode command.
 - [ ] ???
 
 🐧 Linux and 🍏 Mac

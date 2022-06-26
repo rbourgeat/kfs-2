@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 16:53:34 by user42            #+#    #+#             */
-/*   Updated: 2022/06/26 17:00:55 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/26 17:13:23 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #define GET_STACK_POINTER(x)	asm volatile("mov %%esp, %0" : "=r"(x) ::)
 #define GET_STACK_FRAME(x)	asm volatile("mov %%ebp, %0" : "=r"(x) ::)
+
+int keycodemode = 0;
 
 void	shutdown()
 {
@@ -67,11 +69,14 @@ void	kexec()
 	}
 	else if (kstrcmp(prompt_buffer, "halt") == 0)
 	{
-		printk("Halt done");
+		printk("Halt done !");
 		halt();
 	}
-	else if (kstrcmp(prompt_buffer, "clear") == 0)
-		printk("\n\n\n\n\n\n\n\n\n\n");
+	else if (kstrcmp(prompt_buffer, "keycode") == 0)
+	{
+		printk("Keycode mode activate !");
+		keycodemode = 1;
+	}
 	else {
 		kcolor(VGA_COLOR_RED);
 		printk("Command not found: %s", prompt_buffer);
