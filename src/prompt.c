@@ -6,19 +6,45 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 16:53:34 by user42            #+#    #+#             */
-/*   Updated: 2022/06/25 13:11:41 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/26 17:00:55 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
+#include "gdt.h"
 
 #define GET_STACK_POINTER(x)	asm volatile("mov %%esp, %0" : "=r"(x) ::)
 #define GET_STACK_FRAME(x)	asm volatile("mov %%ebp, %0" : "=r"(x) ::)
+
+void	shutdown()
+{
+	// for qemu only
+	// asm volatile ("outw %1, %0" : : "dN" (0x604), "a" (0x2000));
+	// for virtualbox only
+	// asm volatile ("outw %1, %0" : : "dN" (0x4004), "a" (0x3400));
+}
+
+void	halt()
+{
+	asm volatile ("hlt"); // HALT
+}
+
+void	reboot()
+{
+	uint8_t good = 0x02;
+	while (good & 0x02)
+		good = ioport_in(0x64);
+	ioport_out(0x64, 0xFE);
+	halt();
+}
 
 void	kexec()
 {
 	int	sp;
 	int	sf;
+	
+	GET_STACK_POINTER(sp);
+	GET_STACK_FRAME(sf);
 
 	prompt_buffer[prompt_buffer_i] = 0;
 	if (kstrcmp(prompt_buffer, "hello") == 0)
@@ -27,15 +53,25 @@ void	kexec()
 	{
 		GET_STACK_POINTER(sp);
 		GET_STACK_FRAME(sf);
-		khexdump(sp, sf - sp + 1);
+		khexdump(sp, sf - sp);
+	}
+	else if (kstrcmp(prompt_buffer, "reboot") == 0)
+	{
+		printk("Rebooting...");
+		reboot();
+	}
+	else if (kstrcmp(prompt_buffer, "shutdown") == 0)
+	{
+		printk("Shutting down...");
+		shutdown();
+	}
+	else if (kstrcmp(prompt_buffer, "halt") == 0)
+	{
+		printk("Halt done");
+		halt();
 	}
 	else if (kstrcmp(prompt_buffer, "clear") == 0)
 		printk("\n\n\n\n\n\n\n\n\n\n");
-	else if (kstrcmp(prompt_buffer, "push42") == 0)
-	{
-		// asm volatile("push 42 \n\t"
-		// 		"pop eax");
-	}
 	else {
 		kcolor(VGA_COLOR_RED);
 		printk("Command not found: %s", prompt_buffer);

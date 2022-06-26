@@ -5,8 +5,8 @@ Discover the world of "Kernel Programming" and learn how to create your very own
 
 🎁 **Bonus:**
 - [x] Print-kernel-stack-thing in this shell.
-- [ ] Reboot command.
-- [ ] Halt command.
+- [x] Reboot command.
+- [x] Halt command.
 - [ ] Clear command.
 - [ ] ???
 
@@ -25,3 +25,13 @@ https://developpaper.com/write-os-kernel-from-scratch-global-descriptor-table-gd
 ## 📚 Kernel Stack
 
 https://wiki.osdev.org/Stack
+
+## ⚠️ Kernel Commands
+
+https://www.gladir.com/CODER/ASMZ80/halt.htm
+
+https://fr.wikipedia.org/wiki/HLT_(instruction)
+
+https://wiki.osdev.org/Reboot
+
+https://wiki.osdev.org/Shutdown

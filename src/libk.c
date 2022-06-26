@@ -6,7 +6,7 @@
 /*   By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 14:58:54 by user42            #+#    #+#             */
-/*   Updated: 2022/06/24 14:42:08 by rbourgea         ###   ########.fr       */
+/*   Updated: 2022/06/25 13:36:00 by rbourgea         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,9 +144,9 @@ char	*kstrjoin(char const *s1, char const *s2)
 
 void	printk(char *str, ...)
 {
-	int		*nb_args;
+	int	*nb_args;
 	char	*args;
-	int		i;
+	int	i;
 	char	tmp_addr[9];
 	uint8_t	zero_padding;
 
