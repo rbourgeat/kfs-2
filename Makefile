@@ -6,7 +6,7 @@
 #    By: rbourgea <rbourgea@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/04/24 16:00:27 by rbourgea          #+#    #+#              #
-#    Updated: 2022/06/24 13:51:35 by rbourgea         ###   ########.fr        #
+#    Updated: 2022/07/19 20:18:54 by rbourgea         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -63,9 +63,9 @@ build_debug: fclean
 	@ld -m elf_i386 -T ${LINKER} -o ${KERNEL_OUT} ${OBJ}
 	@echo "$(BOLD)$(GREEN)[✓] KERNEL LINK DONE$(RESET)"
 
-#run: build
-#	@qemu-system-i386 -kernel ${KERNEL_OUT} -monitor stdio
-#	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
+# run: build
+# 	@qemu-system-i386 -kernel ${KERNEL_OUT} -monitor stdio
+# 	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
 
 run: docker-run
 
@@ -98,12 +98,14 @@ docker-run:
 	@docker exec -t rbourgea-kfs nasm -f elf32 boot.s -o boot.o
 	@docker exec -t rbourgea-kfs gcc -m32 -ffreestanding ${FLAGS} -c ${SRC_NAME}
 	@docker exec -t rbourgea-kfs ld -m elf_i386 -T linker.ld -o rbourgea_kfs.bin ${OBJ}
-	@-rm boot/rbourgea_kfs.bin
-#	grub-mkrescue -o rbourgea_kfs.iso .
-#	docker cp rbourgea-kfs:/kfs/rbourgea_kfs.iso boot/rbourgea_kfs.iso
-#	qemu-system-i386 -cdrom boot/rbourgea_kfs.iso
-	@docker cp rbourgea-kfs:/kfs/rbourgea_kfs.bin boot/rbourgea_kfs.bin
-	@qemu-system-i386 -kernel boot/rbourgea_kfs.bin -monitor stdio
+	docker exec -t rbourgea-kfs mkdir -p iso/boot/grub
+	docker exec -t rbourgea-kfs mv grub.cfg iso/boot/grub
+	docker exec -t rbourgea-kfs mv rbourgea_kfs.bin iso/boot
+	docker exec -t rbourgea-kfs grub-mkrescue -o rbourgea_kfs.iso ./iso/
+	docker cp rbourgea-kfs:/kfs/rbourgea_kfs.iso boot/rbourgea_kfs.iso
+	qemu-system-i386 -cdrom boot/rbourgea_kfs.iso
+#	@docker cp rbourgea-kfs:/kfs/rbourgea_kfs.bin boot/rbourgea_kfs.bin
+#	@qemu-system-i386 -kernel boot/rbourgea_kfs.bin -monitor stdio
 	@echo "\n$(BOLD)$(CYAN)[✓] KERNEL EXIT DONE$(RESET)"
 
 clean:
