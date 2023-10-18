@@ -1,6 +1,6 @@
 ![kfs-2](/images/screen-1.png)
 
-# [kfs-1](https://github.com/rbourgeat/kfs-1) 👈🏻 ✅ kfs-2
+# [kfs-1](https://github.com/rbourgeat/kfs-1) 👈🏻 kfs-2 👉🏻 [kfs-3](https://github.com/rbourgeat/kfs-3)
 Discover the world of "Kernel Programming" and learn how to create your very own Kernel from scratch.
 
 🎁 **Bonus:**
