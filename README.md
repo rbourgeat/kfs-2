@@ -3,6 +3,8 @@
 # [kfs-1](https://github.com/rbourgeat/kfs-1) 👈🏻 kfs-2 👉🏻 [kfs-3](https://github.com/rbourgeat/kfs-3)
 Discover the world of "Kernel Programming" and learn how to create your very own Kernel from scratch.
 
+> Assembly code is in **Intel syntax** not in AT&T syntax.
+
 🎁 **Bonus:**
 - [x] Print-kernel-stack-thing in this shell.
 - [x] Reboot command.
